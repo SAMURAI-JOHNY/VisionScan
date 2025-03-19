@@ -1,4 +1,5 @@
 package com.example.visionscan.ui.oo.screen
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,8 +22,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
+
 @Composable
-fun MainScreen(navController: NavController) {
+fun ImageScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -45,7 +46,7 @@ fun MainScreen(navController: NavController) {
             horizontalArrangement = Arrangement.Center
         ) {
             Button(
-                onClick = {navController.navigate("image_screen")},
+                onClick = {navController.navigate("main_screen")},
                 shape = RoundedCornerShape(15.dp),
                 colors = ButtonDefaults.buttonColors(
                     contentColor = Color(0xFFF4EFFA),
@@ -54,7 +55,7 @@ fun MainScreen(navController: NavController) {
                 modifier = Modifier.size(width = 250.dp, height = 70.dp)
             ) {
                 Text(
-                    text = "Выбрать изображение",
+                    text = "На главную",
                     fontSize = 18.sp,
                     modifier = Modifier
                         .width(200.dp)
