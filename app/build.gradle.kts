@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -58,4 +60,21 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // CameraX
+    implementation("androidx.camera:camera-camera2:1.3.2")
+    implementation("androidx.camera:camera-lifecycle:1.3.2")
+    implementation("androidx.camera:camera-view:1.3.2")
+
+    // ML Kit (Object Detection)
+    implementation("com.google.mlkit:object-detection:17.0.0")
+
+    // Hilt (DI)
+    implementation("com.google.dagger:hilt-android:2.50")
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler) // Используем ksp вместо kapt
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+
+    // Coil (Image Loading)
+    implementation("io.coil-kt:coil-compose:2.5.0")
 }
