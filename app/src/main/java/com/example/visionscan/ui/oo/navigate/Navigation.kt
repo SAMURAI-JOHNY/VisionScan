@@ -15,7 +15,7 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = "home"
+        startDestination = "image_picker"
     ) {
         composable("home") { MainScreen(navController) }
         composable("image_picker") { ImagePickerScreen(navController) }
