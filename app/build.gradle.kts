@@ -73,7 +73,7 @@ dependencies {
     // Hilt (DI)
     implementation("com.google.dagger:hilt-android:2.50")
     implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler) // Используем ksp вместо kapt
+    ksp(libs.hilt.compiler)
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     // Coil (Image Loading)

@@ -4,10 +4,7 @@ import android.os.Environment
 import android.os.Build
 import android.Manifest
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
-import android.provider.MediaStore
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -31,6 +28,7 @@ import java.util.*
 @Composable
 fun ImagePickerScreen(navController: NavController) {
     val context = LocalContext.current
+    var capturedImageUri by remember { mutableStateOf<Uri?>(null) }
     val imageUri = remember { mutableStateOf<Uri?>(null) }
     var showPermissionDialog by remember { mutableStateOf(false) }
 
@@ -57,10 +55,10 @@ fun ImagePickerScreen(navController: NavController) {
     val cameraLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.TakePicture()
     ) { success ->
-        if (success) {
-            imageUri.value?.let { uri ->
-                navController.navigate("image_viewer/${uri.toString()}")
-            }
+        if (success && capturedImageUri != null) {
+            // Кодируем URI для безопасной передачи
+            val encodedUri = capturedImageUri.toString()
+            navController.navigate("image_viewer/$encodedUri")
         }
     }
 
@@ -68,12 +66,13 @@ fun ImagePickerScreen(navController: NavController) {
         ActivityResultContracts.GetContent()
     ) { uri ->
         uri?.let {
-            navController.navigate("image_viewer/${it.toString()}")
+            val encodedUri = it.toString()
+            navController.navigate("image_viewer/$encodedUri")
         }
     }
 
     fun launchCamera() {
-        val uri = createImageUri(context).also { imageUri.value = it }
+        val uri = createImageUri(context).also { capturedImageUri = it }
         cameraLauncher.launch(uri)
     }
 
@@ -159,7 +158,7 @@ fun ImagePickerScreen(navController: NavController) {
 private fun createImageUri(context: Context): Uri {
     val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
     val imageFileName = "JPEG_${timeStamp}_"
-    val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) ?: context.filesDir
+    val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) ?: context.cacheDir
     val imageFile = File.createTempFile(
         imageFileName,
         ".jpg",

@@ -7,5 +7,4 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ImagePickerViewModel @Inject constructor() : ViewModel() {
-    // Логика выбора изображения
 }
