@@ -1,6 +1,7 @@
 <resources>
-    <string name="app_name">VisionScan</string>
-    <string name="select_image_source">Select image source</string>
-    <string name="take_photo">Take Photo</string>
-    <string name="choose_from_gallery">Choose from Gallery</string>
+    <string name="app_name">Распознавание объектов</string>
+    <string name="select_image_source">Выберите источник изображения</string>
+    <string name="take_photo">Сделать фото</string>
+    <string name="choose_from_gallery">Выбрать из галереи</string>
+    <string name="permissions_required">Для работы приложения требуются разрешения</string>
 </resources>

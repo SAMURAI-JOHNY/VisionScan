@@ -78,4 +78,6 @@ dependencies {
 
     // Coil (Image Loading)
     implementation("io.coil-kt:coil-compose:2.5.0")
+
+    implementation("androidx.activity:activity-compose:1.8.0")
 }
