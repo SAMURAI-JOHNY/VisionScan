@@ -42,6 +42,7 @@ android {
 }
 
 dependencies {
+    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
     implementation("androidx.navigation:navigation-compose:2.8.9")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -72,9 +73,11 @@ dependencies {
     // Hilt (DI)
     implementation("com.google.dagger:hilt-android:2.50")
     implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler) // Используем ksp вместо kapt
+    ksp(libs.hilt.compiler)
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     // Coil (Image Loading)
     implementation("io.coil-kt:coil-compose:2.5.0")
+
+    implementation("androidx.activity:activity-compose:1.8.0")
 }

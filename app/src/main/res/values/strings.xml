@@ -1,3 +1,11 @@
 <resources>
-    <string name="app_name">VisionScan</string>
+    <string name="app_name">Распознавание объектов</string>
+    <string name="select_image_source">Выберите источник изображения</string>
+    <string name="take_photo">Сделать фото</string>
+    <string name="choose_from_gallery">Выбрать из галереи</string>
+    <string name="permissions_required">Для работы приложения требуются разрешения</string>
+    <string name="image_preview">Просмотр изображения</string>
+    <string name="back">Назад</string>
+    <string name="analyze">Анализировать</string>
+    <string name="selected_image">Выбранное изображение</string>
 </resources>
