@@ -56,9 +56,8 @@ fun ImagePickerScreen(navController: NavController) {
         ActivityResultContracts.TakePicture()
     ) { success ->
         if (success && capturedImageUri != null) {
-            // Кодируем URI для безопасной передачи
             val encodedUri = capturedImageUri.toString()
-            navController.navigate("image_viewer/$encodedUri")
+            navController.navigate("image_viewer/${Uri.encode(imageUri.toString())}")
         }
     }
 
@@ -67,7 +66,7 @@ fun ImagePickerScreen(navController: NavController) {
     ) { uri ->
         uri?.let {
             val encodedUri = it.toString()
-            navController.navigate("image_viewer/$encodedUri")
+            navController.navigate("image_viewer/${Uri.encode(imageUri.toString())}")
         }
     }
 
