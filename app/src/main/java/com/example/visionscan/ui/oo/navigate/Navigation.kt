@@ -13,6 +13,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.visionscan.ui.oo.screen.ImagePicker.ImagePickerScreen
 import com.example.visionscan.ui.oo.screen.ImageViewer.ImageViewerScreen
+import com.example.visionscan.ui.oo.screen.Main.MainScreen
+import com.example.visionscan.ui.oo.screen.ScanHistory.ScanHistoryScreen
 import androidx.navigation.NavType
 
 @Composable
@@ -23,9 +25,9 @@ fun AppNavigation() {
         navController = navController,
         startDestination = "image_picker"
     ) {
-        composable("image_picker") {
-            ImagePickerScreen(navController)
-        }
+        composable("home") { MainScreen(navController) }
+        composable("image_picker") { ImagePickerScreen(navController) }
+        composable("scan_history") { ScanHistoryScreen(navController) }
         composable(
             "image_viewer/{imageUri}",
             arguments = listOf(navArgument("imageUri") {
