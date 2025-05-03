@@ -1,22 +1,22 @@
-package com.example.visionscan.ui.oo.screen.ScanHistory
+package com.example.visionscan.ui.oo.screen.ImageViewer
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.visionscan.data.model.model.RecognitionResult
-import com.example.visionscan.data.repository.RecognitionRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
 
-class ScanHistoryViewModel(
+import com.example.visionscan.data.repository.RecognitionRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+@HiltViewModel
+class ImageViewerViewModel @Inject constructor(
     private val repository: RecognitionRepository
 ) : ViewModel() {
 
-    val recognitions: Flow<List<RecognitionResult>> = repository.getAllRecognitions()
-
-    fun deleteRecognition(id: String) {
+    fun saveRecognition(result: RecognitionResult) {
         viewModelScope.launch {
-            repository.deleteRecognition(id)
+            repository.saveRecognition(result)
         }
     }
 }
