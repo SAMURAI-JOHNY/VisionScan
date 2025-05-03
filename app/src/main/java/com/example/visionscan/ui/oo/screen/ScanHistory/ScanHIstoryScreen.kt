@@ -3,151 +3,87 @@ package com.example.visionscan.ui.oo.screen.ScanHistory
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.visionscan.ui.oo.screen.ScanHistory.RecognitionItem
-import com.example.visionscan.ui.oo.screen.ScanHistory.toFormattedDate // Добавляем этот импорт
-import com.example.visionscan.ui.oo.screen.ScanHistory.HistoryViewModel
+import com.example.visionscan.data.model.model.RecognitionResult
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScanHistoryScreen(navController: NavController) {
-    val viewModel: HistoryViewModel = viewModel()
-    val history = viewModel.history.collectAsState().value
+fun ScanHistoryScreen(
+    viewModel: ScanHistoryViewModel,
+    navController: NavController
+) {
+    val recognitions by viewModel.recognitions.collectAsState(initial = emptyList())
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        HistoryHeader(navController)
-        Spacer(modifier = Modifier.height(24.dp))
-        HistoryContent(history, navController)
-    }
-}
-
-@Composable
-private fun HistoryHeader(navController: NavController) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Button(
-            onClick = { navController.popBackStack() },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFF4EFFA),
-                contentColor = Color(0xFF6F2DBD)
-            ),
-            modifier = Modifier.width(100.dp)
-        ) {
-            Text("Назад")
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("История распознаваний") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigate("home") }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Назад"
+                        )
+                    }
+                }
+            )
         }
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        Text(
-            text = "История распознаваний",
-            style = TextStyle(
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF6F2DBD)
-            )
-        )
-    }
-}
-
-@Composable
-private fun HistoryContent(history: List<RecognitionItem>, navController: NavController) {
-    when {
-        history.isEmpty() -> EmptyHistory()
-        else -> HistoryList(history, navController)
-    }
-}
-
-@Composable
-private fun EmptyHistory() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = "История распознаваний пока пуста",
-            style = TextStyle(
-                fontSize = 18.sp,
-                color = Color.Gray
-            )
-        )
-    }
-}
-
-@Composable
-private fun HistoryList(history: List<RecognitionItem>, navController: NavController) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        items(history) { item ->
-            HistoryItemCard(item) {
-                navController.navigate("scan_history/${item.id}")
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(recognitions) { recognition ->
+                RecognitionItem(
+                    recognition = recognition,
+                    onDelete = { viewModel.deleteRecognition(recognition.id) }
+                )
             }
         }
     }
 }
 
 @Composable
-private fun HistoryItemCard(item: RecognitionItem, onClick: () -> Unit) {
+fun RecognitionItem(
+    recognition: RecognitionResult,
+    onDelete: () -> Unit
+) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFF4EFFA)
-        ),
-        onClick = onClick
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = item.timestamp.toFormattedDate(),
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    color = Color.Gray
-                )
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = "Объектов найдено: ${item.detectedObjects.size}",
-                style = TextStyle(
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color(0xFF6F2DBD)
-                )
-            )
-
-            if (item.detectedObjects.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(4.dp))
+            // Здесь добавьте AsyncImage для отображения изображения
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = item.detectedObjects.joinToString {
-                        "${it.name} (${it.confidencePercent()}%)"
-                    },
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        color = Color.DarkGray
-                    )
+                    text = recognition.recognitionText,
+                    maxLines = 1,
+                )
+                Text(
+                    text = "ID: ${recognition.id}",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            IconButton(onClick = onDelete) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Удалить"
                 )
             }
         }

@@ -6,6 +6,10 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+hilt {
+    enableAggregatingTask = false
+}
+
 android {
     namespace = "com.example.visionscan"
     compileSdk = 35
@@ -54,6 +58,8 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation("com.google.mlkit:object-detection:17.0.2")
     implementation("com.google.mlkit:image-labeling:17.0.9")
+    implementation(libs.androidx.room.common.jvm)
+    implementation(libs.androidx.room.runtime.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -67,17 +73,29 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:1.3.2")
     implementation("androidx.camera:camera-view:1.3.2")
 
-    // ML Kit (Object Detection)
-    implementation("com.google.mlkit:object-detection:17.0.0")
+    // ML Kit
+    implementation("com.google.mlkit:object-detection:17.0.2")
+    implementation("com.google.mlkit:image-labeling:17.0.9")
 
-    // Hilt (DI)
-    implementation("com.google.dagger:hilt-android:2.50")
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+    ksp("androidx.room:room-compiler:2.6.1")
 
-    // Coil (Image Loading)
+    // Hilt
+    implementation("com.google.dagger:hilt-android:2.48")
+    ksp("com.google.dagger:hilt-compiler:2.48")
+    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
+
+    // Coil
     implementation("io.coil-kt:coil-compose:2.5.0")
 
-    implementation("androidx.activity:activity-compose:1.8.0")
+    // Navigation
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+
+    // Permissions
+    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
+
+    // Если будете реализовывать пагинацию для истории
+    implementation("androidx.paging:paging-compose:3.3.0-alpha02")
+    implementation("androidx.room:room-paging:2.6.1")
 }

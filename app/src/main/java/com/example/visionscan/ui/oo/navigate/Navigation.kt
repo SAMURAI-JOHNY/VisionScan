@@ -1,52 +1,68 @@
-package com.example.visionscan.ui.oo.navigate
+package com.example.visionscan.ui.navigation
 
-import android.net.Uri
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
+import android.content.Context
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.visionscan.data.repository.RecognitionRepository
+import com.example.visionscan.data.repository.RecognitionRepositoryImpl
 import com.example.visionscan.ui.oo.screen.ImagePicker.ImagePickerScreen
 import com.example.visionscan.ui.oo.screen.ImageViewer.ImageViewerScreen
 import com.example.visionscan.ui.oo.screen.Main.MainScreen
 import com.example.visionscan.ui.oo.screen.ScanHistory.ScanHistoryScreen
-import androidx.navigation.NavType
+import com.example.visionscan.ui.oo.screen.ScanHistory.ScanHistoryViewModel
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val context = LocalContext.current
 
+    // 1. Получаем экземпляр репозитория
+    val repository = remember {
+        RecognitionRepositoryImpl.getInstance(context)
+    }
+
+    // 2. Настраиваем навигацию
     NavHost(
         navController = navController,
-        startDestination = "image_picker"
+        startDestination = "home"
     ) {
-        composable("home") { MainScreen(navController) }
-        composable("image_picker") { ImagePickerScreen(navController) }
-        composable("scan_history") { ScanHistoryScreen(navController) }
-        composable(
-            "image_viewer/{imageUri}",
-            arguments = listOf(navArgument("imageUri") {
-                type = NavType.StringType
-            })
-        ) { backStackEntry ->
-            val encodedUri = backStackEntry.arguments?.getString("imageUri")
-            val decodedUri = encodedUri?.let { Uri.parse(it) }
+        composable("home") {
+            MainScreen(
+                navController = navController
+            )
+        }
 
-            if (decodedUri != null) {
-                ImageViewerScreen(
-                    navController = navController,
-                    imageUri = decodedUri
-                )
-            } else {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Ошибка загрузки изображения")
+        // 3. Экран истории сканирований
+        composable("scan_history") {
+            val viewModel = viewModel<ScanHistoryViewModel>(
+                factory = object : ViewModelProvider.Factory {
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                        // 4. Передаем репозиторий в ViewModel
+                        return ScanHistoryViewModel(repository) as T
+                    }
                 }
-            }
+            )
+
+            ScanHistoryScreen(
+                viewModel = viewModel,
+                navController = navController
+            )
+        }
+
+        composable("image_picker") {
+            ImagePickerScreen(
+                navController = navController
+            )
         }
     }
 }
