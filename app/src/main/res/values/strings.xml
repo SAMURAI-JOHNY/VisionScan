@@ -8,4 +8,5 @@
     <string name="back">Назад</string>
     <string name="analyze">Анализировать</string>
     <string name="selected_image">Выбранное изображение</string>
+    <string name="image_not_found">Изображение не найдено</string>
 </resources>

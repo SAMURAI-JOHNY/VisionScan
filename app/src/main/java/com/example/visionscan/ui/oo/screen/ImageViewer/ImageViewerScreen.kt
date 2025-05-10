@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,8 +18,6 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.visionscan.R
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.ExperimentalMaterial3Api
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,6 +25,8 @@ fun ImageViewerScreen(
     navController: NavController,
     imageUri: Uri
 ) {
+    val context = LocalContext.current
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -43,7 +44,8 @@ fun ImageViewerScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    navController.navigate("analysis/${imageUri.toString()}")
+                    val encodedUri = Uri.encode(imageUri.toString())
+                    navController.navigate("analysis/$encodedUri")
                 }
             ) {
                 Icon(
@@ -59,16 +61,23 @@ fun ImageViewerScreen(
                 .padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
-            Image(
-                painter = rememberAsyncImagePainter(
-                    ImageRequest.Builder(LocalContext.current)
-                        .data(imageUri)
-                        .build()
-                ),
-                contentDescription = stringResource(R.string.selected_image),
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Fit
-            )
+            if (imageUri.toString().isNotBlank()) {
+                Image(
+                    painter = rememberAsyncImagePainter(
+                        ImageRequest.Builder(context)
+                            .data(imageUri)
+                            .build()
+                    ),
+                    contentDescription = stringResource(R.string.selected_image),
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Fit
+                )
+            } else {
+                Text(
+                    text = stringResource(R.string.image_not_found),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.example.visionscan.ui.navigation
 
 import android.content.Context
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
@@ -62,6 +63,18 @@ fun AppNavigation() {
         composable("image_picker") {
             ImagePickerScreen(
                 navController = navController
+            )
+        }
+
+        composable(
+            "image_viewer/{encodedUri}",
+            arguments = listOf(navArgument("encodedUri") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val encodedUri = backStackEntry.arguments?.getString("encodedUri") ?: ""
+            val imageUri = Uri.parse(Uri.decode(encodedUri))
+            ImageViewerScreen(
+                navController = navController,
+                imageUri = imageUri
             )
         }
     }
