@@ -73,6 +73,10 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:1.3.2")
     implementation("androidx.camera:camera-view:1.3.2")
 
+    // Kotlin Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
+
     // ML Kit
     implementation("com.google.mlkit:object-detection:17.0.2")
     implementation("com.google.mlkit:image-labeling:17.0.9")
