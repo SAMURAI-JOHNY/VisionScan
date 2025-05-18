@@ -1,4 +1,4 @@
-package com.example.visionscan.ui.oo.screen.ScanHistory
+package com.example.visionscan.ui.oo.screen
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -7,29 +7,36 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.visionscan.data.model.model.RecognitionResult
+import coil.compose.AsyncImage
+import com.example.visionscan.data.database.AppDatabase
+import com.example.visionscan.data.model.database.RecognitionWithDetails
+import com.example.visionscan.data.repository.RecognitionRepository
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScanHistoryScreen(
-    viewModel: ScanHistoryViewModel,
     navController: NavController
 ) {
-    val recognitions by viewModel.recognitions.collectAsState(initial = emptyList())
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val db = remember { AppDatabase.getDatabase(context) }
+    val repository = remember { RecognitionRepository(db.recognitionDao()) }
+
+    val recognitions by repository.getAllRecognitionsWithDetails().collectAsState(initial = emptyList())
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = { Text("История распознаваний") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigate("home") }) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Назад"
@@ -38,53 +45,69 @@ fun ScanHistoryScreen(
                 }
             )
         }
-    ) { padding ->
+    ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
+                .padding(paddingValues)
                 .fillMaxSize()
-                .padding(padding),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(recognitions) { recognition ->
-                RecognitionItem(
+                RecognitionHistoryItem(
                     recognition = recognition,
-                    onDelete = { viewModel.deleteRecognition(recognition.id) }
+                    onDelete = {
+                        scope.launch {
+                            repository.deleteRecognition(recognition.recognition.id)
+                        }
+                    },
                 )
+                Divider()
             }
         }
     }
 }
 
 @Composable
-fun RecognitionItem(
-    recognition: RecognitionResult,
-    onDelete: () -> Unit
+fun RecognitionHistoryItem(
+    recognition: RecognitionWithDetails,
+    onDelete: () -> Unit,
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
+            .padding(8.dp)
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier.padding(16.dp)
         ) {
-            // Здесь добавьте AsyncImage для отображения изображения
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = recognition.recognitionText,
-                    maxLines = 1,
-                )
-                Text(
-                    text = "ID: ${recognition.id}",
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            IconButton(onClick = onDelete) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Удалить"
-                )
+            // Превью изображения
+            AsyncImage(
+                model = recognition.recognition.imageUri,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Основные метки
+            Text(
+                text = "Метки: ${recognition.labels.take(3).joinToString { it.text }}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            // Основные объекты
+            Text(
+                text = "Объекты: ${recognition.objects.take(3).joinToString { it.text }}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            // Кнопка удаления
+            IconButton(
+                onClick = onDelete,
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Icon(Icons.Default.Delete, "Удалить")
             }
         }
     }

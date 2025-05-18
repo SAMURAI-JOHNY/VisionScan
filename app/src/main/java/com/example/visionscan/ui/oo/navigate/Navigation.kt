@@ -15,22 +15,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.visionscan.data.repository.RecognitionRepository
-import com.example.visionscan.data.repository.RecognitionRepositoryImpl
 import com.example.visionscan.ui.oo.screen.ImagePicker.ImagePickerScreen
 import com.example.visionscan.ui.oo.screen.ImageViewer.ImageViewerScreen
 import com.example.visionscan.ui.oo.screen.Main.MainScreen
-import com.example.visionscan.ui.oo.screen.ScanHistory.ScanHistoryScreen
-import com.example.visionscan.ui.oo.screen.ScanHistory.ScanHistoryViewModel
+import com.example.visionscan.ui.oo.screen.ScanHistoryScreen
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
     val context = LocalContext.current
-
-    // 1. Получаем экземпляр репозитория
-    val repository = remember {
-        RecognitionRepositoryImpl.getInstance(context)
-    }
 
     // 2. Настраиваем навигацию
     NavHost(
@@ -45,17 +38,8 @@ fun AppNavigation() {
 
         // 3. Экран истории сканирований
         composable("scan_history") {
-            val viewModel = viewModel<ScanHistoryViewModel>(
-                factory = object : ViewModelProvider.Factory {
-                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                        // 4. Передаем репозиторий в ViewModel
-                        return ScanHistoryViewModel(repository) as T
-                    }
-                }
-            )
 
             ScanHistoryScreen(
-                viewModel = viewModel,
                 navController = navController
             )
         }

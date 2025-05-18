@@ -25,6 +25,11 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.visionscan.R
+import com.example.visionscan.data.database.AppDatabase
+import com.example.visionscan.data.model.database.LabelResult
+import com.example.visionscan.data.model.database.ObjectResult
+import com.example.visionscan.data.model.database.RecognitionEntity
+import com.example.visionscan.data.repository.RecognitionRepository
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.label.ImageLabeler
 import com.google.mlkit.vision.label.ImageLabeling
@@ -43,6 +48,9 @@ fun ImageViewerScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+
+    val db = remember { AppDatabase.getDatabase(context) }
+    val repository = remember { RecognitionRepository(db.recognitionDao()) }
 
     // Состояния для результатов анализа
     var labels by remember { mutableStateOf<List<String>>(emptyList()) }
@@ -75,24 +83,49 @@ fun ImageViewerScreen(
             try {
                 val image = InputImage.fromFilePath(context, imageUri)
 
-                // Параллельный запуск обоих анализаторов
-                val labelDeferred = async {
-                    labeler.process(image)
-                        .await()
-                        .map { "${it.text} (${(it.confidence * 100).toInt()}%)" }
+                val (rawLabels, rawObjects) = withContext(Dispatchers.Default) {
+                    val labelsDeferred = async { labeler.process(image).await() }
+                    val objectsDeferred = async { objectDetector.process(image).await() }
+                    Pair(labelsDeferred.await(), objectsDeferred.await())
                 }
 
-                val objectDeferred = async {
-                    objectDetector.process(image)
-                        .await()
-                        .flatMap { obj ->
-                            val objectName = obj.labels.firstOrNull()?.text ?: "Объект"
-                            listOf("$objectName (${(obj.labels.firstOrNull()?.confidence?.times(100)?.toInt())}%)")
+                // 2. Форматируем данные для UI
+                labels = rawLabels.map { "${it.text} (${(it.confidence * 100).toInt()}%)" }
+                objects = rawObjects.flatMap { obj ->
+                    obj.labels.map { label ->
+                        "${label.text ?: "Объект"} (${(label.confidence * 100).toInt()}%)"
+                    }
+                }
+
+                withContext(Dispatchers.IO) {
+                    val recognitionId = repository.insertRecognition(
+                        RecognitionEntity(imageUri = imageUri)
+                    )
+
+                    // Сохраняем метки
+                    rawLabels.forEach { label ->
+                        repository.insertLabel(
+                            LabelResult(
+                                recognitionId = recognitionId, // Указываем ID
+                                text = label.text,
+                                confidence = label.confidence
+                            )
+                        )
+                    }
+
+                    // Сохраняем объекты
+                    rawObjects.forEach { obj ->
+                        obj.labels.forEach { label ->
+                            repository.insertObject(
+                                ObjectResult(
+                                    recognitionId = recognitionId,
+                                    text = label.text ?: "Объект",
+                                    confidence = label.confidence
+                                )
+                            )
                         }
+                    }
                 }
-
-                labels = labelDeferred.await()
-                objects = objectDeferred.await()
 
             } catch (e: Exception) {
                 labels = listOf("Ошибка: ${e.localizedMessage}")
