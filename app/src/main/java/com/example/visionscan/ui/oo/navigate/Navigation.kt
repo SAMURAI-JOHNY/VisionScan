@@ -14,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.visionscan.data.model.database.RecognitionWithDetails
 import com.example.visionscan.data.repository.RecognitionRepository
 import com.example.visionscan.ui.oo.screen.ImagePicker.ImagePickerScreen
 import com.example.visionscan.ui.oo.screen.ImageViewer.ImageViewerScreen
@@ -40,7 +41,7 @@ fun AppNavigation() {
         composable("scan_history") {
 
             ScanHistoryScreen(
-                navController = navController
+                navController = navController,
             )
         }
 
