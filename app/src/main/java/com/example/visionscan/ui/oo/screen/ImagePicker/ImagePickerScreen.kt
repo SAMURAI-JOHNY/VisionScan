@@ -1,13 +1,15 @@
 package com.example.visionscan.ui.oo.screen.ImagePicker
 
-import android.os.Environment
-import android.os.Build
 import android.Manifest
 import android.content.Context
 import android.net.Uri
+import android.os.Build
+import android.os.Environment
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,13 +25,15 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import com.example.visionscan.ui.oo.White
+import com.example.visionscan.ui.oo.Purple40
+import androidx.compose.ui.unit.sp
 
-@OptIn(ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun ImagePickerScreen(navController: NavController) {
     val context = LocalContext.current
     var capturedImageUri by remember { mutableStateOf<Uri?>(null) }
-    val imageUri = remember { mutableStateOf<Uri?>(null) }
     var showPermissionDialog by remember { mutableStateOf(false) }
 
     val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -100,7 +104,29 @@ fun ImagePickerScreen(navController: NavController) {
         )
     }
 
-    Scaffold { paddingValues ->
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text(stringResource(R.string.select_image_source)) },
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            navController.popBackStack(
+                                route = "home",
+                                inclusive = false,
+                                saveState = true
+                            )
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -123,9 +149,19 @@ fun ImagePickerScreen(navController: NavController) {
                         showPermissionDialog = true
                     }
                 },
-                modifier = Modifier.width(250.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .padding(horizontal = 24.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Purple40,
+                    contentColor = White
+                )
             ) {
-                Text(text = stringResource(R.string.take_photo))
+                Text(
+                    text = stringResource(R.string.take_photo),
+                    fontSize = 20.sp
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -138,9 +174,19 @@ fun ImagePickerScreen(navController: NavController) {
                         showPermissionDialog = true
                     }
                 },
-                modifier = Modifier.width(250.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .padding(horizontal = 24.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = White,
+                    contentColor = Purple40
+                )
             ) {
-                Text(text = stringResource(R.string.choose_from_gallery))
+                Text(
+                    text = stringResource(R.string.choose_from_gallery),
+                    fontSize = 20.sp
+                )
             }
 
             if (!permissionsState.allPermissionsGranted) {

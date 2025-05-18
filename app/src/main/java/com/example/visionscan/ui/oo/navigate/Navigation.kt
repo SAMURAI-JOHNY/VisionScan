@@ -26,7 +26,6 @@ fun AppNavigation() {
     val navController = rememberNavController()
     val context = LocalContext.current
 
-    // 2. Настраиваем навигацию
     NavHost(
         navController = navController,
         startDestination = "home"
@@ -37,7 +36,6 @@ fun AppNavigation() {
             )
         }
 
-        // 3. Экран истории сканирований
         composable("scan_history") {
 
             ScanHistoryScreen(

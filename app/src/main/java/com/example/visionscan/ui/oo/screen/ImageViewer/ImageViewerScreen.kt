@@ -3,7 +3,6 @@ package com.example.visionscan.ui.oo.screen.ImageViewer
 
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.tasks.await
@@ -31,14 +30,15 @@ import com.example.visionscan.data.model.database.ObjectResult
 import com.example.visionscan.data.model.database.RecognitionEntity
 import com.example.visionscan.data.repository.RecognitionRepository
 import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.label.ImageLabeler
 import com.google.mlkit.vision.label.ImageLabeling
 import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
 import com.google.mlkit.vision.objects.ObjectDetection
 import com.google.mlkit.vision.objects.defaults.ObjectDetectorOptions
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.async
-import java.io.IOException
+import com.example.visionscan.ui.oo.White
+import com.example.visionscan.ui.oo.Purple40
+import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,14 +52,12 @@ fun ImageViewerScreen(
     val db = remember { AppDatabase.getDatabase(context) }
     val repository = remember { RecognitionRepository(db.recognitionDao()) }
 
-    // Состояния для результатов анализа
     var labels by remember { mutableStateOf<List<String>>(emptyList()) }
     var objects by remember { mutableStateOf<List<String>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
     var activeTab by remember { mutableStateOf(0) }
     var showResults by remember { mutableStateOf(false) }
 
-    // Инициализация анализаторов
     val labeler = remember {
         ImageLabeling.getClient(ImageLabelerOptions.DEFAULT_OPTIONS)
     }
@@ -153,22 +151,37 @@ fun ImageViewerScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = { analyzeImage() },
+                modifier = Modifier.padding(16.dp),
+                containerColor = Purple40,
+                contentColor = White,
+                elevation = FloatingActionButtonDefaults.elevation(
+                    defaultElevation = 8.dp,
+                    pressedElevation = 12.dp
+                ),
                 icon = {
                     if (isLoading) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(24.dp),
-                            color = MaterialTheme.colorScheme.onPrimary
+                            color = White
                         )
                     } else {
-                        Icon(Icons.Default.Search, stringResource(R.string.analyze))
+                        Icon(
+                            Icons.Default.Search,
+                            stringResource(R.string.analyze),
+                            tint = White
+                        )
                     }
                 },
-                text = { Text(stringResource(R.string.analyze)) }
+                text = {
+                    Text(
+                        stringResource(R.string.analyze),
+                        fontSize = 18.sp
+                    )
+                }
             )
         }
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize()) {
-            // Изображение
             Image(
                 painter = rememberAsyncImagePainter(
                     ImageRequest.Builder(context)
@@ -180,7 +193,6 @@ fun ImageViewerScreen(
                 contentScale = ContentScale.Fit
             )
 
-            // Результаты анализа
             if (showResults) {
                 Surface(
                     modifier = Modifier
